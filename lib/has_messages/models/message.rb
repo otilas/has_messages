@@ -27,7 +27,7 @@
 # * +unhide+ - Makes the message visible again
 class Message < ActiveRecord::Base
   belongs_to  :sender, :polymorphic => true
-  has_many    :recipients, :class_name => 'MessageRecipient', :order => 'kind DESC, position ASC', :dependent => :destroy
+  has_many    :recipients, :class_name => 'MessageRecipient', :order => 'kind DESC', :dependent => :destroy
   
   validates_presence_of :state, :sender_id, :sender_type
   
