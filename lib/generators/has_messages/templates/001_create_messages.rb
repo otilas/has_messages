@@ -6,6 +6,7 @@ class CreateMessages < ActiveRecord::Migration
       t.string :state, :null => false
       t.datetime :hidden_at
       t.string :type
+      t.belongs_to :original_message
       t.timestamps
     end
   end

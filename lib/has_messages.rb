@@ -47,7 +47,14 @@ module HasMessages
                   :include => :message,
                   :conditions => ['message_recipients.hidden_at IS NULL AND messages.state = ?', 'sent'],
                   :order => 'messages.created_at DESC'
-      
+#      has_many  :received_message_threads,
+#                  :as => :receiver,
+#                  :class_name => 'MessageRecipient',
+#                  :include => :message,
+#                  :conditions => ['message_recipients.hidden_at IS NULL AND messages.state = ? and messages.original_message_id IS NOT NULL', 'sent'],
+#                  :group => 'messages.original_message_id',
+#                  :order => 'messages.created_at DESC'
+
       include HasMessages::InstanceMethods
     end
   end
@@ -63,6 +70,11 @@ module HasMessages
     # messages that are currently in the "queued" or "sent" states.
     def sent_messages
       messages.with_states(:queued, :sent)
+    end
+
+    # Returns the most recent message of each thread
+    def last_received_message_per_thread
+      MessageRecipient.find_all_by_receiver_id(id, :order => 'id desc', :joins => :message, :conditions => 'message_recipients.hidden_at is null', :group => 'COALESCE(original_message_id,messages.id)')
     end
   end
 end

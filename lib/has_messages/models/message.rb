@@ -27,6 +27,7 @@
 # * +unhide+ - Makes the message visible again
 class Message < ActiveRecord::Base
   belongs_to  :sender, :polymorphic => true
+  belongs_to  :original_message, :class_name => 'Message'
   has_many    :recipients, :class_name => 'MessageRecipient', :order => 'kind DESC', :dependent => :destroy
   
   validates_presence_of :state, :sender_id, :sender_type
@@ -99,6 +100,12 @@ class Message < ActiveRecord::Base
     message = self.class.new(:subject => subject, :body => body)
     message.sender = sender
     message.to(to)
+    # use the very first message to anchor all replies
+    if self.original_message
+      message.original_message = self.original_message
+    else
+      message.original_message = self
+    end
     message
   end
   
@@ -109,6 +116,12 @@ class Message < ActiveRecord::Base
     message = reply
     message.cc(cc)
     message.bcc(bcc)
+    # use the very first message to anchor all replies
+    if self.original_message
+      message.original_message = self.original_message
+    else
+      message.original_message = self
+    end
     message
   end
   

@@ -80,6 +80,12 @@ class MessageRecipient < ActiveRecord::Base
     message = self.message.class.new(:subject => subject, :body => body)
     message.sender = receiver
     message.to(sender)
+    # use the very first message to anchor all replies
+    if self.message.original_message
+      message.original_message = self.message.original_message
+    else
+      message.original_message = self.message
+    end
     message
   end
   
@@ -88,9 +94,15 @@ class MessageRecipient < ActiveRecord::Base
   # added to the reply.
   def reply_to_all
     message = reply
-    message.to(to - [receiver] + [sender])
+    message.to(  (to + [sender]).uniq )
     message.cc(cc - [receiver])
     message.bcc(bcc - [receiver])
+    # use the very first message to anchor all replies
+    if self.message.original_message
+      message.original_message = self.message.original_message
+    else
+      message.original_message = self.message
+    end
     message
   end
   
