@@ -76,6 +76,22 @@ module HasMessages
     def last_received_message_per_thread
       MessageRecipient.find_all_by_receiver_id(id, :order => 'id desc', :joins => :message, :conditions => 'message_recipients.hidden_at is null', :group => 'COALESCE(original_message_id,messages.id)')
     end
+    
+    def conversations
+      (messages + received_messages.map(&:message)).compact.uniq
+    end
+
+    def original_conversations
+      conversations.select{ |message| message.original_message_id == nil }
+    end
+
+    def find_conversation_by_id(id)
+      conversations.select{ |message| message.id == id.to_i }.first
+    end
+
+    def unread_messages
+      received_messages.select(&:unread?).map(&:message)
+    end
   end
 end
 
