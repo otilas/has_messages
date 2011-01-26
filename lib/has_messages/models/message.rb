@@ -30,7 +30,6 @@ class Message < ActiveRecord::Base
   belongs_to  :original_message, :class_name => 'Message'
   has_many    :recipients, :class_name => 'MessageRecipient', :order => 'kind DESC', :dependent => :destroy
   has_many    :follow_up_messages, :class_name => 'Message', :foreign_key => 'original_message_id'
-  has_one     :latest_message, :class_name => 'Message', :foreign_key => 'original_message_id', :order => 'created_at DESC'
   
   validates_presence_of :state, :sender_id, :sender_type
   
@@ -68,6 +67,14 @@ class Message < ActiveRecord::Base
     
     state :visible, :value => nil
     state :hidden, :value => lambda {Time.now}, :if => lambda {|value| value}
+  end
+  
+  def thread
+    [self] + follow_up_messages
+  end
+  
+  def latest_message
+    follow_up_messages.last || self
   end
   
   # Directly adds the receivers on the message (i.e. they are visible to all recipients)
