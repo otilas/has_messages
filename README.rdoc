@@ -35,6 +35,10 @@ demonstrating a reference implementation of these features.
 
 === Installation
 
+In your Gemfile:
+
+	gem 'has_messages_huacnlee', :require => 'has_messages'
+
 +has_messages+ requires additional database tables to work.  You can generate
 a migration for these tables like so:
 
